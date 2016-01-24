@@ -1,47 +1,77 @@
+import os
+from configparser import ConfigParser
+
 import praw
 from slacker import Slacker
 
 
-def get_memes():
+class DankBot(object):
     '''
-    Collect top memes from r/dankmemes
+    Bot for posting dank memes from reddit to slack
     '''
+    def __init__(self, slack_token):
+        self.slack_token = slack_token
 
-    # Build the user_agent, this is important to conform to Reddit's rules
-    user_agent = 'linux:dankscraper:0.0.1 (by /u/IHKAS1984)'
+    def go(self):
+        # Check for most recent dank memes
+        memes = self.get_memes()
 
-    # Create connection object
-    r = praw.Reddit(user_agent=user_agent)
+        # Filter out any known dank memes
+        filtered_memes = [meme for meme in memes if not self.in_collection(meme)]
 
-    return [h.url for h in r.get_subreddit('dankmemes').get_hot()]
+        # If any are left, post to slack
+        self.post_to_slack(filtered_memes)
 
+    def get_memes(self):
+        '''
+        Collect top memes from r/dankmemes
+        '''
 
-def post_to_slack(memes):
-    '''
-    Post the memes to slack
-    '''
-    slack = Slacker('redacted')
-    for meme in memes:
-        slack.chat.post_message('#random', meme, as_user=True)
-        break
+        # Build the user_agent, this is important to conform to Reddit's rules
+        user_agent = 'linux:dankscraper:0.0.1 (by /u/IHKAS1984)'
 
+        # Create connection object
+        r = praw.Reddit(user_agent=user_agent)
 
-def filter_my_memes(memes):
-    '''
-    '''
-    pass
+        return [h.url for h in r.get_subreddit('dankmemes').get_hot()]
+
+    def in_collection(self, meme):
+        '''
+        Checks to see if the supplied meme is already in the collection of known
+        memes
+        '''
+        pass
+
+    def add_to_collection(self, meme):
+        '''
+        Adds a meme to the collection
+        '''
+        pass
+
+    def post_to_slack(self, memes):
+        '''
+        Post the memes to slack
+        '''
+        slack = Slacker(self.slack_token)
+        for meme in memes:
+            #print(meme)
+            resp = slack.chat.post_message('#random', meme, as_user=True)
+            break
+
+            '''
+            if resp.successful:
+                self.add_to_collection(meme)
+            '''
 
 
 def main():
-    # Check for most recent dank memes
-    memes = get_memes()
+    # Load the configuration options
+    config = ConfigParser()
+    config_path = os.path.join(os.path.dirname(__file__), u'dankbot.ini')
+    config.read(config_path)
 
-    # Filter out any known dank memes
-    filtered_memes = filter_my_memes(memes)
-
-    # If any are left, post to slack
-    post_to_slack(memes)
+    DankBot(slack_token=config['slack']['token']).go()
 
 
 if __name__ == "__main__":
-    pass
+    main()

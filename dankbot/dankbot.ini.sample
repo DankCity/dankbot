@@ -1,0 +1,6 @@
+[slack]
+token: <abc123>
+channel: #random
+
+[reddit]
+subreddits: dankmemes, fishpost
