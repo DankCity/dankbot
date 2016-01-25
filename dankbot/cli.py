@@ -8,7 +8,7 @@ import praw
 import MySQLdb as mdb
 from slacker import Slacker
 
-MAX_MEMES = 3
+MAX_MEMES = 1
 
 
 class DankBot(object):
