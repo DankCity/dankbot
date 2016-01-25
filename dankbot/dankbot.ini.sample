@@ -4,3 +4,7 @@ channel: #random
 
 [reddit]
 subreddits: dankmemes, fishpost
+
+[mysql]
+username: <username>
+password: <password>
