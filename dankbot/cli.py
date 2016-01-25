@@ -15,10 +15,11 @@ class DankBot(object):
     '''
     Bot for posting dank memes from reddit to slack
     '''
-    def __init__(self, slack_token, channel, subreddits, username, password):
+    def __init__(self, slack_token, channel, subreddits, database, username, password):
         self.slack_token = slack_token
         self.channel = channel
         self.subreddits = subreddits
+        self.database = database
         self.username = username
         self.password = password
 
@@ -63,7 +64,7 @@ class DankBot(object):
         query = "select * from memes where links = '{0}'".format(meme.link)
 
         con = mdb.connect(
-                'localhost', self.username, self.password, 'danklinks')
+                'localhost', self.username, self.password, self.database)
 
         with con:
             cur = con.cursor()
@@ -82,7 +83,7 @@ class DankBot(object):
                 """.format(meme.link, meme.source, str(dt.now()))
 
         con = mdb.connect(
-                'localhost', self.username, self.password, 'danklinks')
+                'localhost', self.username, self.password, self.database)
 
         with con:
             cur = con.cursor()
@@ -117,6 +118,7 @@ def main():
 
     token = config['slack']['token']
     channel = config['slack']['channel']
+    database = config['mysql']['database']
     username = config['mysql']['username']
     password = config['mysql']['password']
 
@@ -126,6 +128,7 @@ def main():
         slack_token=token,
         channel=channel,
         subreddits=subreddits,
+        database=database,
         username=username,
         password=password
     ).go()
