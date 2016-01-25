@@ -61,7 +61,7 @@ class DankBot(object):
         Checks to see if the supplied meme is already in the collection of known
         memes
         '''
-        query = "select * from memes where links = '{0}'".format(meme.link)
+        query = "SELECT * FROM memes WHERE links = '{0}'".format(meme.link)
 
         con = mdb.connect(
                 'localhost', self.username, self.password, self.database)
