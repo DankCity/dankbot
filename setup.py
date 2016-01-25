@@ -19,5 +19,6 @@ setup(
         'slacker',
         'praw',
         'configparser>=3.5.0b2',
+        'mysqlclient',
     ],
 )
