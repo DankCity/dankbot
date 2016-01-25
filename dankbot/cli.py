@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import os
+import random
 from datetime import datetime as dt
 from configparser import ConfigParser
 
@@ -29,6 +30,9 @@ class DankBot(object):
 
         # Filter out any known dank memes
         filtered_memes = [m for m in memes if not self.in_collection(m)]
+
+        # Shuffle memes
+        random.shuffle(filtered_memes)
 
         # Cut down to the max memes
         chopped_memes = filtered_memes[:MAX_MEMES]
