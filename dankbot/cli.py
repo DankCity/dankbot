@@ -8,6 +8,8 @@ import praw
 import MySQLdb as mdb
 from slacker import Slacker
 
+MAX_MEMES = 3
+
 
 class DankBot(object):
     '''
@@ -27,8 +29,11 @@ class DankBot(object):
         # Filter out any known dank memes
         filtered_memes = [m for m in memes if not self.in_collection(m)]
 
+        # Cut down to the max memes
+        chopped_memes = filtered_memes[:MAX_MEMES]
+
         # If any are left, post to slack
-        self.post_to_slack(filtered_memes)
+        self.post_to_slack(chopped_memes)
 
     def get_memes(self):
         '''
