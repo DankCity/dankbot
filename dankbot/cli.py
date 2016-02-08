@@ -70,8 +70,7 @@ class DankBot(object):
         con = mdb.connect(
                 'localhost', self.username, self.password, self.database)
 
-        with con:
-            cur = con.cursor()
+        with con, con.cursor() as cur:
             resp = cur.execute(query)
 
         return True if resp else False
@@ -99,7 +98,9 @@ class DankBot(object):
         '''
         slack = Slacker(self.slack_token)
         for meme in memes:
-            resp = slack.chat.post_message(self.channel, meme.link, as_user=True)
+
+            message = "{0} from {1}".format(meme.link, meme.source)
+            resp = slack.chat.post_message(self.channel, message, as_user=True)
 
             if resp.successful:
                 self.add_to_collection(meme)
