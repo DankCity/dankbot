@@ -16,13 +16,14 @@ class DankBot(object):
     '''
     Bot for posting dank memes from reddit to slack
     '''
-    def __init__(self, slack_token, channel, subreddits, database, username, password):
+    def __init__(self, slack_token, channel, subreddits, database, username, password, include_nsfw):
         self.slack_token = slack_token
         self.channel = channel
         self.subreddits = subreddits
         self.database = database
         self.username = username
         self.password = password
+        self.include_nsfw = include_nsfw
 
     def go(self):
         # Check for most recent dank memes
@@ -55,8 +56,11 @@ class DankBot(object):
 
         func = r.get_subreddit
 
+        # Get list of memes, filtering out NSFW entries
         for sub in self.subreddits:
-            memes += [Meme(link.url, sub) for link in func(sub).get_hot()]
+            meme_list = [meme for meme in func(sub).get_hot()]
+            memes += [Meme(link.url, sub) for link in meme_list \
+                      if (not link.over_18) or include_nsfw ]
 
         return memes
 
@@ -126,6 +130,7 @@ def main():
     database = config['mysql']['database']
     username = config['mysql']['username']
     password = config['mysql']['password']
+    include_nsfw = config.getboolean('misc','include_nsfw')
 
     subreddits = [s.strip(',') for s in config['reddit']['subreddits'].split()]
 
@@ -135,7 +140,8 @@ def main():
         subreddits=subreddits,
         database=database,
         username=username,
-        password=password
+        password=password,
+        include_nsfw=include_nsfw
     ).go()
 
 

@@ -6,5 +6,9 @@ channel: #random
 subreddits: dankmemes, fishpost
 
 [mysql]
+database: <db>
 username: <username>
 password: <password>
+
+[misc]
+include_nsfw: <boolean>
