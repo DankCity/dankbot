@@ -7,7 +7,7 @@ import praw
 import MySQLdb as mdb
 from slacker import Slacker
 
-from dankbot.meme import ImgurGallery, DankMeme
+from dankbot.memes import ImgurGallery, DankMeme
 
 
 class DankBot(object):
