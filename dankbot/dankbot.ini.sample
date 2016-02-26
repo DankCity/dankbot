@@ -5,6 +5,10 @@ channel: #random
 [reddit]
 subreddits: dankmemes, fishpost
 
+[imgur]
+client_id: <your client ID>
+client_secret: <your client secret>
+
 [mysql]
 database: <db>
 username: <username>
