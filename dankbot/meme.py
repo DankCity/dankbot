@@ -23,7 +23,7 @@ class DankMeme(Meme):
     pass
 
 
-class ImgurMeme(Meme):
+class ImgurGallery(Meme):
     """
     Class specific to meme's from Imgur.com
     """

@@ -7,25 +7,25 @@ import praw
 import MySQLdb as mdb
 from slacker import Slacker
 
-from dankbot.meme import ImgurMeme, DankMeme
-
-MAX_MEMES = 3
+from dankbot.meme import ImgurGallery, DankMeme
 
 
 class DankBot(object):
     '''
     Bot for posting dank memes from reddit to slack
     '''
-    def __init__(self, slack_token, channel, subreddits, database, username,
-                 password, include_nsfw, max_memes=MAX_MEMES):
-        self.slack_token = slack_token
-        self.channel = channel
-        self.subreddits = subreddits
-        self.database = database
-        self.username = username
-        self.password = password
-        self.include_nsfw = include_nsfw
-        self.max_memes = max_memes
+    def __init__(self, config):
+        self.slack_token = config['slack']['token']
+        self.channel = config['slack']['channel']
+
+        self.database = config['mysql']['database']
+        self.username = config['mysql']['username']
+        self.password = config['mysql']['password']
+
+        self.include_nsfw = config.getboolean('misc', 'include_nsfw')
+        self.max_memes = config.getint('misc', 'max_memes')
+
+        self.subreddits = [s.strip(',') for s in config['reddit']['subreddits'].split()]
 
     def go(self):
         # Check for most recent dank memes
@@ -63,7 +63,7 @@ class DankBot(object):
                     continue
 
                 if self._is_imgur_gallery(meme.url):
-                    memes.append(ImgurMeme(meme.url, sub))
+                    memes.append(ImgurGallery(meme.url, sub))
                 else:
                     memes.append(DankMeme(meme.url, sub))
 
