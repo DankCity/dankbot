@@ -7,7 +7,7 @@ import praw
 import MySQLdb as mdb
 from slacker import Slacker
 
-from dankbot.meme import Meme
+from dankbot.meme import ImgurMeme, DankMeme
 
 MAX_MEMES = 3
 
@@ -59,12 +59,28 @@ class DankBot(object):
         # Get list of memes, filtering out NSFW entries
         for sub in self.subreddits:
             for meme in r.get_subreddit(sub).get_hot():
-                if not meme.over_18 or self.include_nsfw:
-                    memes.append(Meme(meme.url, sub))
-                else:
+                if meme.over_18 and not self.include_nsfw:
                     continue
 
+                if self._is_imgur_gallery(meme.url):
+                    memes.append(ImgurMeme(meme.url, sub))
+                else:
+                    memes.append(DankMeme(meme.url, sub))
+
         return memes
+
+    @staticmethod
+    def _is_imgur_gallery(link):
+        """
+        Returns True if link leads to imgur
+        """
+        image_types = ["jpg", "png", "gif", "gifv"]
+        if "imgur.com" not in link:
+            return False
+        elif any([img_type in link.lower() for img_type in image_types]):
+            return False
+        else:
+            return True
 
     def in_collection(self, meme):
         '''
@@ -105,7 +121,7 @@ class DankBot(object):
         slack = Slacker(self.slack_token)
         for meme in memes:
 
-            message = "{0} from {1}".format(meme.link, meme.source)
+            message = meme.format_for_slack()
             resp = slack.chat.post_message(self.channel, message, as_user=True)
 
             if resp.successful:
