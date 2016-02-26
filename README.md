@@ -28,8 +28,27 @@ channel: #random
 subreddits: dankmemes, fishpost
 
 [mysql]
+database: <db>
 username: <username>
 password: <password>
+
+[misc]
+include_nsfw: <boolean>
+max_memes: 3
+```
+
+### Create and activate a virtual environment
+```
+cd /opt/dankbot
+virtualenv --python=`which python3` env
+source env/bin/activate
+```
+
+### Install the python package
+```
+cd /opt/dankbot
+source env/bin/activate
+pip install -e .
 ```
 
 ### Add an entry to your crontab:
@@ -57,7 +76,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 52 61 * *61roottest -x /usr/sbin/anacron || ( cd / && run-parts --report
 /etc/cron.monthly )
 #
-*/5 10-18 * * 1-5 root cd /opt/dankbot && python3 dankbot/cli.py
+*/5 10-18 * * 1-5 root cd /opt/dankbot && source env/bin/activate && dankbot .
 ```
 
 This will run dankbot once every 5 minutes, Monday to Friday, between 9 AM and
