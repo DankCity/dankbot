@@ -9,14 +9,15 @@ import praw
 import MySQLdb as mdb
 from slacker import Slacker
 
-MAX_MEMES = 1
+MAX_MEMES = 3
 
 
 class DankBot(object):
     '''
     Bot for posting dank memes from reddit to slack
     '''
-    def __init__(self, slack_token, channel, subreddits, database, username, password, include_nsfw):
+    def __init__(self, slack_token, channel, subreddits, database, username,
+                 password, include_nsfw, max_memes=MAX_MEMES):
         self.slack_token = slack_token
         self.channel = channel
         self.subreddits = subreddits
@@ -24,6 +25,7 @@ class DankBot(object):
         self.username = username
         self.password = password
         self.include_nsfw = include_nsfw
+        self.max_memes = max_memes
 
     def go(self):
         # Check for most recent dank memes
@@ -36,7 +38,7 @@ class DankBot(object):
         random.shuffle(filtered_memes)
 
         # Cut down to the max memes
-        chopped_memes = filtered_memes[:MAX_MEMES]
+        chopped_memes = filtered_memes[:self.max_memes]
 
         # If any are left, post to slack
         self.post_to_slack(chopped_memes)
@@ -131,6 +133,7 @@ def main():
     username = config['mysql']['username']
     password = config['mysql']['password']
     include_nsfw = config.getboolean('misc','include_nsfw')
+    max_memes = config.getint('misc', 'max_memes')
 
     subreddits = [s.strip(',') for s in config['reddit']['subreddits'].split()]
 
@@ -141,7 +144,8 @@ def main():
         database=database,
         username=username,
         password=password,
-        include_nsfw=include_nsfw
+        include_nsfw=include_nsfw,
+        max_memes=max_memes
     ).go()
 
 
