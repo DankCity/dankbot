@@ -38,10 +38,20 @@ class DankBot(object):
         random.shuffle(filtered_memes)
 
         # Cut down to the max memes
-        chopped_memes = filtered_memes[:self.max_memes]
+        pared_memes = filtered_memes[:self.max_memes]
 
-        # If any are left, post to slack
-        self.post_to_slack(chopped_memes)
+        # Bale here if nothing is left
+        if not pared_memes:
+            return False
+
+        # If any memes are Imgur galleries, get more information
+        def digest(gallery):
+            gallery.digest()
+
+        map(digest, [i for i in pared_memes if isinstance(i, ImgurGallery)])
+
+        # Post to slack
+        return self.post_to_slack(chopped_memes)
 
     def get_memes(self):
         '''
@@ -49,7 +59,7 @@ class DankBot(object):
         '''
 
         # Build the user_agent, this is important to conform to Reddit's rules
-        user_agent = 'linux:dankscraper:0.0.2 (by /u/IHKAS1984)'
+        user_agent = 'linux:dankscraper:0.0.3 (by /u/IHKAS1984)'
 
         # Create connection object
         r = praw.Reddit(user_agent=user_agent)
@@ -110,14 +120,17 @@ class DankBot(object):
         con = mdb.connect(
             'localhost', self.username, self.password, self.database)
 
-        with con:
-            cur = con.cursor()
+        with con, con.cursor() as cur:
             cur.execute(query)
+
+        return
 
     def post_to_slack(self, memes):
         '''
         Post the memes to slack
         '''
+        ret_status = False
+
         slack = Slacker(self.slack_token)
         for meme in memes:
 
@@ -126,3 +139,6 @@ class DankBot(object):
 
             if resp.successful:
                 self.add_to_collection(meme)
+                ret_status = True
+
+        return ret_status
