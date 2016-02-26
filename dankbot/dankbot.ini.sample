@@ -12,3 +12,4 @@ password: <password>
 
 [misc]
 include_nsfw: <boolean>
+max_memes: 3
