@@ -60,7 +60,7 @@ class DankBot(object):
         for sub in self.subreddits:
             meme_list = [meme for meme in func(sub).get_hot()]
             memes += [Meme(link.url, sub) for link in meme_list \
-                      if (not link.over_18) or include_nsfw ]
+                      if (not link.over_18) or self.include_nsfw ]
 
         return memes
 
