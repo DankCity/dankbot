@@ -3,8 +3,8 @@ from __future__ import print_function
 import random
 from datetime import datetime as dt
 
-import praw
 import MySQLdb as mdb
+import praw
 from slacker import Slacker
 
 from dankbot.meme import Meme
