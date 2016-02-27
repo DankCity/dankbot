@@ -1,5 +1,7 @@
 # Dankbot
 
+[![Circle CI](https://circleci.com/gh/levi-rs/dankbot/tree/master.svg?style=svg)](https://circleci.com/gh/levi-rs/dankbot/tree/master) [![Coverage Status](https://coveralls.io/repos/github/levi-rs/dankbot/badge.svg?branch=master)](https://coveralls.io/github/levi-rs/dankbot?branch=master)
+
 A Slack Bot that scrapes memes from subreddits and posts them to slack
 
 ## Steps to run
