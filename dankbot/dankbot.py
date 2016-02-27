@@ -7,7 +7,7 @@ import praw
 import MySQLdb as mdb
 from slacker import Slacker
 
-from dankbot.memes import ImgurGallery, DankMeme
+from dankbot.memes import ImgurMeme, DankMeme
 
 
 class DankBot(object):
@@ -27,6 +27,12 @@ class DankBot(object):
 
         self.subreddits = [s.strip(',') for s in config['reddit']['subreddits'].split()]
 
+        # Get and set Imgur API credentials
+        client_id = config['imgur']['client_id']
+        client_secret = config['imgur']['client_secret']
+
+        ImgurMeme.set_credentials(client_id=client_id, client_secret=client_secret)
+
     def go(self):
         # Check for most recent dank memes
         memes = self.get_memes()
@@ -45,13 +51,14 @@ class DankBot(object):
             return False
 
         # If any memes are Imgur galleries, get more information
-        def digest(gallery):
-            gallery.digest()
-
-        map(digest, [i for i in pared_memes if isinstance(i, ImgurGallery)])
+        for meme in [meme for meme in pared_memes if isinstance(meme, ImgurMeme)]:
+            try:
+                meme.digest()
+            except:
+                raise
 
         # Post to slack
-        return self.post_to_slack(chopped_memes)
+        return self.post_to_slack(pared_memes)
 
     def get_memes(self):
         '''
@@ -72,25 +79,33 @@ class DankBot(object):
                 if meme.over_18 and not self.include_nsfw:
                     continue
 
-                if self._is_imgur_gallery(meme.url):
-                    memes.append(ImgurGallery(meme.url, sub))
+                if "imgur.com/" in meme.url:
+                    memes.append(ImgurMeme(meme.url, sub))
                 else:
                     memes.append(DankMeme(meme.url, sub))
 
         return memes
 
     @staticmethod
+    def _is_imgur_album(link):
+        """
+        Returns True if link is an Imgur front page album
+        """
+        return True if "imgur.com/a/" in link else False
+
+    @staticmethod
     def _is_imgur_gallery(link):
         """
-        Returns True if link leads to imgur
+        Returns True if link is an Imgur user album
         """
-        image_types = ["jpg", "png", "gif", "gifv"]
-        if "imgur.com" not in link:
-            return False
-        elif any([img_type in link.lower() for img_type in image_types]):
-            return False
-        else:
-            return True
+        return True if "imgur.com/gallery/" in link else False
+
+    @staticmethod
+    def _is_imgur_image(link):
+        """
+        Returns True if link is an Imgur image
+        """
+        return True if "imgur.com/" in link else False
 
     def in_collection(self, meme):
         '''
