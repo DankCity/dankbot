@@ -1,0 +1,22 @@
+machine:
+  python:
+    version: 3.5.0
+
+general:
+  artifacts:
+    - .tox/tox/junit.xml
+    - .tox/tox/flake8.txt
+    - .tox/coverage.xml
+
+dependencies:
+  override:
+    - pip install tox
+    - pip install python-coveralls
+
+test:
+  override:
+    - tox -v -r
+  post:
+  - coveralls
+  - mkdir -p $CIRCLE_TEST_REPORTS/dankbot
+  - cp .tox/tox/junit.xml $CIRCLE_TEST_REPORTS/dankbot
