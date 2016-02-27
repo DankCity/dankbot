@@ -9,14 +9,15 @@ general:
     - .tox/coverage.xml
 
 dependencies:
+  pre:
+    - source venv/bin/activate
+    - pip uninstall -y coverage
   override:
     - pip install tox
-    - pip install python-coveralls
 
 test:
   override:
     - tox -v -r
   post:
-  - coveralls
   - mkdir -p $CIRCLE_TEST_REPORTS/dankbot
   - cp .tox/tox/junit.xml $CIRCLE_TEST_REPORTS/dankbot
