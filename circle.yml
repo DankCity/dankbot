@@ -12,8 +12,9 @@ dependencies:
   pre:
     - rm -rf venv
   override:
-    - pip install tox
-    - pip install python-coveralls
+    - pip install --upgrade pip
+    - pip install --upgrade tox
+    - pip install --upgrade python-coveralls
 
 test:
   override:
