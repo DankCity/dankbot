@@ -1,6 +1,6 @@
 #!/bin/bash
 
 cd /opt/dankbot
-source venv/bin/activate
+source env/bin/activate
 git pull
 pip install --upgrade -e .
