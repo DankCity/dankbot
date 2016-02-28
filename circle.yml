@@ -28,4 +28,4 @@ deployment:
   production:
     branch: master
     commands:
-      -  /opt/dankbot/deploy.sh
+      -  ssh $DEPLOY_HOST $DEPLOY_PATH/deploy.sh
