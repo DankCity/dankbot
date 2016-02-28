@@ -23,3 +23,9 @@ test:
   - coveralls
   - mkdir -p $CIRCLE_TEST_REPORTS/dankbot
   - cp .tox/tox/junit.xml $CIRCLE_TEST_REPORTS/dankbot
+
+deployment:
+  production:
+    branch: master
+    commands:
+      -  /opt/dankbot/deploy.sh
