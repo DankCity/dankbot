@@ -55,7 +55,7 @@ class DankBot(object):
             try:
                 meme.digest()
             except:
-                raise
+                pass
 
         # Post to slack
         return self.post_to_slack(pared_memes)
@@ -85,27 +85,6 @@ class DankBot(object):
                     memes.append(DankMeme(meme.url, sub))
 
         return memes
-
-    @staticmethod
-    def _is_imgur_album(link):
-        """
-        Returns True if link is an Imgur front page album
-        """
-        return True if "imgur.com/a/" in link else False
-
-    @staticmethod
-    def _is_imgur_gallery(link):
-        """
-        Returns True if link is an Imgur user album
-        """
-        return True if "imgur.com/gallery/" in link else False
-
-    @staticmethod
-    def _is_imgur_image(link):
-        """
-        Returns True if link is an Imgur image
-        """
-        return True if "imgur.com/" in link else False
 
     def in_collection(self, meme):
         '''
