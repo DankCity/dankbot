@@ -9,18 +9,14 @@ general:
     - .tox/coverage.xml
 
 dependencies:
-  pre:
-    - rm -rf venv
   override:
     - pip install --upgrade pip
     - pip install --upgrade tox
-    - pip install --upgrade python-coveralls
 
 test:
   override:
     - tox -r
   post:
-  - coveralls
   - mkdir -p $CIRCLE_TEST_REPORTS/dankbot
   - cp .tox/tox/junit.xml $CIRCLE_TEST_REPORTS/dankbot
   - cp .tox/tox/flake8.txt $CIRCLE_TEST_REPORTS/dankbot
