@@ -1,4 +1,4 @@
-from dankbot.meme import Meme
+from dankbot.memes import Meme
 
 
 def test_meme():

@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="dankbot",
-    version="0.0.1",
+    version="0.0.3",
     description="Slack bot for posting dank memes",
     packages=find_packages(),
     test_suite="tests",
@@ -20,5 +20,6 @@ setup(
         'praw',
         'configparser>=3.5.0b2',
         'mysqlclient',
+        'imgurpython',
     ],
 )

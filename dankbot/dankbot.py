@@ -7,25 +7,31 @@ import praw
 import MySQLdb as mdb
 from slacker import Slacker
 
-from dankbot.meme import Meme
-
-MAX_MEMES = 3
+from dankbot.memes import ImgurMeme, DankMeme
 
 
 class DankBot(object):
     '''
     Bot for posting dank memes from reddit to slack
     '''
-    def __init__(self, slack_token, channel, subreddits, database, username,
-                 password, include_nsfw, max_memes=MAX_MEMES):
-        self.slack_token = slack_token
-        self.channel = channel
-        self.subreddits = subreddits
-        self.database = database
-        self.username = username
-        self.password = password
-        self.include_nsfw = include_nsfw
-        self.max_memes = max_memes
+    def __init__(self, config):
+        self.slack_token = config['slack']['token']
+        self.channel = config['slack']['channel']
+
+        self.database = config['mysql']['database']
+        self.username = config['mysql']['username']
+        self.password = config['mysql']['password']
+
+        self.include_nsfw = config.getboolean('misc', 'include_nsfw')
+        self.max_memes = config.getint('misc', 'max_memes')
+
+        self.subreddits = [s.strip(',') for s in config['reddit']['subreddits'].split()]
+
+        # Get and set Imgur API credentials
+        client_id = config['imgur']['client_id']
+        client_secret = config['imgur']['client_secret']
+
+        ImgurMeme.set_credentials(client_id=client_id, client_secret=client_secret)
 
     def go(self):
         # Check for most recent dank memes
@@ -38,10 +44,21 @@ class DankBot(object):
         random.shuffle(filtered_memes)
 
         # Cut down to the max memes
-        chopped_memes = filtered_memes[:self.max_memes]
+        pared_memes = filtered_memes[:self.max_memes]
 
-        # If any are left, post to slack
-        self.post_to_slack(chopped_memes)
+        # Bale here if nothing is left
+        if not pared_memes:
+            return False
+
+        # If any memes are Imgur memes, get more information
+        for meme in [meme for meme in pared_memes if isinstance(meme, ImgurMeme)]:
+            try:
+                meme.digest()
+            except:
+                pass
+
+        # Post to slack
+        return self.post_to_slack(pared_memes)
 
     def get_memes(self):
         '''
@@ -49,7 +66,7 @@ class DankBot(object):
         '''
 
         # Build the user_agent, this is important to conform to Reddit's rules
-        user_agent = 'linux:dankscraper:0.0.2 (by /u/IHKAS1984)'
+        user_agent = 'linux:dankscraper:0.0.3 (by /u/IHKAS1984)'
 
         # Create connection object
         r = praw.Reddit(user_agent=user_agent)
@@ -59,10 +76,13 @@ class DankBot(object):
         # Get list of memes, filtering out NSFW entries
         for sub in self.subreddits:
             for meme in r.get_subreddit(sub).get_hot():
-                if not meme.over_18 or self.include_nsfw:
-                    memes.append(Meme(meme.url, sub))
-                else:
+                if meme.over_18 and not self.include_nsfw:
                     continue
+
+                if "imgur.com/" in meme.url:
+                    memes.append(ImgurMeme(meme.url, sub))
+                else:
+                    memes.append(DankMeme(meme.url, sub))
 
         return memes
 
@@ -94,19 +114,25 @@ class DankBot(object):
         con = mdb.connect(
             'localhost', self.username, self.password, self.database)
 
-        with con:
-            cur = con.cursor()
+        with con, con.cursor() as cur:
             cur.execute(query)
+
+        return
 
     def post_to_slack(self, memes):
         '''
         Post the memes to slack
         '''
+        ret_status = False
+
         slack = Slacker(self.slack_token)
         for meme in memes:
 
-            message = "{0} from {1}".format(meme.link, meme.source)
+            message = meme.format_for_slack()
             resp = slack.chat.post_message(self.channel, message, as_user=True)
 
             if resp.successful:
                 self.add_to_collection(meme)
+                ret_status = True
+
+        return ret_status
