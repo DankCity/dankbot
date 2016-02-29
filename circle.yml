@@ -9,8 +9,6 @@ general:
     - .tox/coverage.xml
 
 dependencies:
-  pre:
-    - rm -rf venv
   override:
     - pip install --upgrade pip
     - pip install --upgrade tox
