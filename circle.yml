@@ -1,6 +1,8 @@
 machine:
   python:
     version: 3.5.0
+  environment:
+    PY_VERSIONS: '2.7.10 3.3.3 3.4.3 3.5.0 pypy-2.5.0'
 
 general:
   artifacts:
@@ -12,7 +14,8 @@ dependencies:
   override:
     - pip install --upgrade pip
     - pip install --upgrade tox
-    - pip install --upgrade python-coveralls
+    - pip install --upgrade coveralls
+    - pyenv local $PY_VERSIONS
 
 test:
   override:
