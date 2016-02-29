@@ -50,7 +50,7 @@ class DankBot(object):
         if not pared_memes:
             return False
 
-        # If any memes are Imgur galleries, get more information
+        # If any memes are Imgur memes, get more information
         for meme in [meme for meme in pared_memes if isinstance(meme, ImgurMeme)]:
             try:
                 meme.digest()
