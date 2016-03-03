@@ -97,7 +97,11 @@ class DankBot(object):
             'localhost', self.username, self.password, self.database)
 
         with con, con.cursor() as cur:
-            resp = cur.execute(query)
+            try:
+                resp = cur.execute(query)
+            except UnicodeEncodeError:
+                # Indicates a link with oddball characters, just ignore it
+                resp = True
 
         return True if resp else False
 
