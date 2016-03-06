@@ -1,11 +1,5 @@
 from imgurpython import ImgurClient
 
-# Imgur link types
-DIRECT_LINK = "direct link"
-IMAGE_LINK = "image link"
-ALBUM_LINK = "album link"
-GALLERY_LINK = "gallery link"
-
 
 class Meme(object):
     """
@@ -36,6 +30,12 @@ class ImgurMeme(Meme):
     """
     Base class for Imgur meme types
     """
+    # Imgur link types
+    DIRECT_LINK = "direct link"
+    IMAGE_LINK = "image link"
+    ALBUM_LINK = "album link"
+    GALLERY_LINK = "gallery link"
+
     client_id = None
     client_secret = None
 
@@ -68,13 +68,13 @@ class ImgurMeme(Meme):
         """
         Formats meme into a string to be posted to slack chat
         """
-        if self.link_type == DIRECT_LINK:
+        if self.link_type == self.DIRECT_LINK:
             return "from {0}: {1}".format(self.source, self.link)
 
-        elif self.link_type == IMAGE_LINK:
+        elif self.link_type == self.IMAGE_LINK:
             return "from {0}: {1}".format(self.source, self.first_image_link)
 
-        elif self.link_type == ALBUM_LINK or self.link_type == GALLERY_LINK:
+        elif self.link_type == self.ALBUM_LINK or self.link_type == self.GALLERY_LINK:
             return_str = "from {0}: {1}".format(self.source, self.first_image_link)
             if self.image_count and self.image_count > 1:
                 return_str += "\n{0} more at {1}".format(self.image_count-1, self.link)
@@ -90,21 +90,21 @@ class ImgurMeme(Meme):
         """
         if "i.imgur.com/" in self.link:
             # Do nothing, since this is already just a direct link
-            self.link_type = DIRECT_LINK
+            self.link_type = self.DIRECT_LINK
 
         elif "imgur.com/a/" in self.link or "imgur.com/album/" in self.link:
             # Link to an album
-            self.link_type = ALBUM_LINK
+            self.link_type = self.ALBUM_LINK
             self._parse_as_album()
 
         elif "imgur.com/g/" in self.link or "imgur.com/gallery/" in self.link:
             # Link to a gallery
-            self.link_type = GALLERY_LINK
+            self.link_type = self.GALLERY_LINK
             self._parse_as_gallery()
 
         else:
             # Must be an image
-            self.link_type = IMAGE_LINK
+            self.link_type = self.IMAGE_LINK
             self._parse_as_image()
 
     def _parse_as_image(self):
