@@ -22,6 +22,8 @@ test:
   - mkdir -p $CIRCLE_TEST_REPORTS/dankbot
   - cp .tox/tox/junit.xml $CIRCLE_TEST_REPORTS/dankbot
   - cp .tox/tox/flake8.txt $CIRCLE_TEST_REPORTS/dankbot
+  - cp -R htmlcov $CIRCLE_TEST_REPORTS/dankbot
+  - cp coverage.xml $CIRCLE_TEST_REPORTS/dankbot
 
 deployment:
   production:
