@@ -1,6 +1,10 @@
 from imgurpython import ImgurClient
 
 
+class UndigestedError(Exception):
+    pass
+
+
 class Meme(object):
     """
     Base class for meme objects
@@ -46,6 +50,7 @@ class ImgurMeme(Meme):
         self.first_image_link = None
 
         self.link_type = None
+        self._digested = False
 
     def _get_client(self):
         """
@@ -68,7 +73,12 @@ class ImgurMeme(Meme):
         """
         Formats meme into a string to be posted to slack chat
         """
-        if self.link_type == self.DIRECT_LINK:
+        if not self._digested:
+            exc_str = "You must digest ImgurMeme objects before attempting to" + \
+                      "run img_obj.format_for_slack(). See img_obj.digest()"
+            raise UndigestedError(exc_str)
+
+        elif self.link_type == self.DIRECT_LINK:
             return "from {0}: {1}".format(self.source, self.link)
 
         elif self.link_type == self.IMAGE_LINK:
@@ -106,6 +116,8 @@ class ImgurMeme(Meme):
             # Must be an image
             self.link_type = self.IMAGE_LINK
             self._parse_as_image()
+
+        self._digested = True
 
     def _parse_as_image(self):
         """
