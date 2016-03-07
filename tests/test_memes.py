@@ -80,7 +80,7 @@ def test_ImgurMeme_get_client(client_mock):
 
 @patch("dankbot.memes.ImgurClient")
 def test_ImgurMeme_direct_link(client_mock):
-    """ Test Imgur Meme with using a direct link to an image
+    """ Test Imgur Meme using a direct link to an image
     """
     # Setup the ImgurMeme object
     test_link = "http://i.imgur.com/abcdef.pdf"
@@ -96,10 +96,42 @@ def test_ImgurMeme_direct_link(client_mock):
     i_meme.digest()
 
     assert not client_mock.called
+    assert i_meme.link_type is ImgurMeme.DIRECT_LINK
+    assert i_meme.image_count is None
+    assert i_meme.first_image_link is None
 
 
-def test_ImgurMeme_album_01():
-    pass
+@patch("dankbot.memes.ImgurClient")
+def test_ImgurMeme_album_01(imgur_mock):
+    """ Test Imgur Meme using a link to an album
+    """
+    # Setup the mock object
+    imgur_mock.return_value = imgur_mock
+    imgur_mock.get_album.return_value = imgur_mock
+
+    image_count = 10
+    fake_link = 'fake link'
+    imgur_mock.images_count = image_count
+    imgur_mock.images = [{'link': fake_link}, ]
+
+    # Setup the ImgurMeme object
+    album_id = 'abcdef'
+    test_link = "http://imgur.com/a/{0}".format(album_id)
+    test_source = "test imgur source"
+    client_id = "mock_id"
+    client_secret = "mock_secret"
+
+    ImgurMeme.set_credentials(client_id, client_secret)
+
+    i_meme = ImgurMeme(test_link, test_source)
+
+    # Digest the link
+    i_meme.digest()
+
+    assert imgur_mock.called
+    imgur_mock.get_album.assert_called_with(album_id)
+    assert i_meme.image_count == image_count
+    assert i_meme.first_image_link == fake_link
 
 
 def test_ImgurMeme_album_02():
