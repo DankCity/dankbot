@@ -70,14 +70,6 @@ SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 # m h dom mon dow usernamecommand
-17 *17* * *17root    cd / && run-parts --report /etc/cron.hourly
-25 6* * *25roottest -x /usr/sbin/anacron || ( cd / && run-parts --report
-/etc/cron.daily )
-47 6* * 7roottest -x /usr/sbin/anacron || ( cd / && run-parts --report
-/etc/cron.weekly )
-52 61 * *61roottest -x /usr/sbin/anacron || ( cd / && run-parts --report
-/etc/cron.monthly )
-#
 */5 09-17 * * 1-5 root cd /opt/dankbot && source env/bin/activate && dankbot .
 ```
 
