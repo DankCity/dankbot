@@ -27,7 +27,7 @@ token: <put here>
 channel: #random
 
 [reddit]
-subreddits: dankmemes, fishpost, me_irl
+subreddits: dankmemes, fishpost, me_irl, 4chan
 
 [mysql]
 database: <db>
