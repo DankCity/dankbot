@@ -10,7 +10,7 @@ A Slack Bot that scrapes memes from subreddits and posts them to slack
 ```
 cd /opt
 sudo mkdir dankbot && sudo chown <user>:<user> dankbot
-git clone git@github.com:levi-rs/dankbot.git
+git clone git@github.com:DankCity/dankbot.git
 ```
 
 ### Setup INI file
