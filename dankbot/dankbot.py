@@ -69,13 +69,13 @@ class DankBot(object):
         user_agent = 'linux:dankscraper:0.0.3 (by /u/IHKAS1984)'
 
         # Create connection object
-        r = praw.Reddit(user_agent=user_agent)
+        r_client = praw.Reddit(user_agent=user_agent)
 
         memes = list()
 
         # Get list of memes, filtering out NSFW entries
         for sub in self.subreddits:
-            for meme in r.get_subreddit(sub).get_hot():
+            for meme in r_client.get_subreddit(sub).get_hot():
                 if meme.over_18 and not self.include_nsfw:
                     continue
 
