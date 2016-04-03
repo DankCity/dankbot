@@ -1,0 +1,6 @@
+test-warnings: no
+strictness: veryhigh
+max-line-length: 100
+autodetect: yes
+python-targets:
+    - 3
