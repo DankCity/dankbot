@@ -12,7 +12,7 @@ def main():
     config_path = os.path.join(os.path.dirname(__file__), u'dankbot.ini')
     config.read(config_path)
 
-    DankBot(config).go()
+    DankBot(config).find_memes()
 
 
 if __name__ == "__main__":
