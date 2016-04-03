@@ -29,6 +29,10 @@ channel: #random
 [reddit]
 subreddits: dankmemes, fishpost, me_irl, 4chan
 
+[imgur]
+client_id: <client_id>
+client_secret: <client Secret>
+
 [mysql]
 database: <db>
 username: <username>
