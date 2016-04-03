@@ -33,7 +33,9 @@ class DankBot(object):
 
         ImgurMeme.set_credentials(client_id=client_id, client_secret=client_secret)
 
-    def go(self):
+    def find_memes(self):
+        """ Find memes from subreddits and post them to slack
+        """
         # Check for most recent dank memes
         memes = self.get_memes()
 
