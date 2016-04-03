@@ -5,7 +5,7 @@ class UndigestedError(Exception):
     pass
 
 
-class Meme(object):
+class Meme(object):  # pylint: disable=R0903
     """
     Base class for meme objects
     """
@@ -23,7 +23,7 @@ class Meme(object):
         return repr(self)
 
 
-class DankMeme(Meme):
+class DankMeme(Meme):  # pylint: disable=too-few-public-methods
     """
     Regular, run of the mill memes
     """
@@ -87,7 +87,7 @@ class ImgurMeme(Meme):
         elif self.link_type == self.ALBUM_LINK or self.link_type == self.GALLERY_LINK:
             return_str = "from {0}: {1}".format(self.source, self.first_image_link)
             if self.image_count and self.image_count > 1:
-                return_str += "\n{0} more at {1}".format(self.image_count-1, self.link)
+                return_str += "\n{0} more at {1}".format(self.image_count - 1, self.link)
             return return_str
 
         else:

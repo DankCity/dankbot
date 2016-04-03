@@ -10,11 +10,13 @@ from slacker import Slacker
 from dankbot.memes import ImgurMeme, DankMeme
 
 
-class DankBot(object):
+class DankBot(object):  # pylint: disable=R0902, R0903
     '''
     Bot for posting dank memes from reddit to slack
     '''
     def __init__(self, config):
+        # pylint: disable=too-many-instance-attributes
+
         self.slack_token = config['slack']['token']
         self.channel = config['slack']['channel']
 
@@ -56,7 +58,8 @@ class DankBot(object):
         for meme in [meme for meme in pared_memes if isinstance(meme, ImgurMeme)]:
             try:
                 meme.digest()
-            except:
+            except Exception:  # pylint: disable=C0103, W0612, W0703
+                # TODO: Add exception logging
                 pass
 
         # Post to slack
