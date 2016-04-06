@@ -19,7 +19,7 @@ cd /opt/dankbot
 cp dankbot/dankbot.ini.sample dankbot/dankbot.ini
 ```
 
-Edit the INI file to fillin the missing token, username, and password fields:
+Edit the INI file to fill in the missing token, username, and password fields:
 ```
 (.venv35)➜  dankbot git:(master) ✗ cat dankbot/dankbot.ini.sample
 [slack]
