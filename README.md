@@ -57,6 +57,12 @@ source env/bin/activate
 pip install -e .
 ```
 
+### Create logging folder
+```
+sudo mkdir /var/log/dankbot
+sudo chown <user> /var/log/dankbot
+```
+
 ### Add an entry to your crontab:
 Edit the crontab with your favorite editor
 ```
