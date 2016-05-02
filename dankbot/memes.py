@@ -125,6 +125,10 @@ class ImgurMeme(Meme):
         """
         # Entry point format: imgur.com/{image_id}
         image_id = self.link.split('/')[-1]
+
+        # Remove file extension, if present
+        image_id = image_id.split('.')[0]
+
         response = self._get_client().get_image(image_id)
 
         self.image_count = 0
