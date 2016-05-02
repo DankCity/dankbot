@@ -21,20 +21,20 @@ def configure_logger():
     formatter = logging.Formatter('[%(levelname)s %(asctime)s] %(message)s')
 
     # Set up STDOUT handler
-    sh = logging.StreamHandler(sys.stdout)
-    sh.setLevel(logging.DEBUG)
-    sh.setFormatter(formatter)
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setLevel(logging.DEBUG)
+    stdout_handler.setFormatter(formatter)
 
     # Set up file logging with rotating file handler
-    rfh = RotatingFileHandler(LOG_FILE, backupCount=5, maxBytes=1000000)
-    rfh.setLevel(logging.DEBUG)
-    rfh.setFormatter(formatter)
+    rotate_fh = RotatingFileHandler(LOG_FILE, backupCount=5, maxBytes=1000000)
+    rotate_fh.setLevel(logging.DEBUG)
+    rotate_fh.setFormatter(formatter)
 
     # Create Logger object
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
-    logger.addHandler(sh)
-    logger.addHandler(rfh)
+    logger.addHandler(stdout_handler)
+    logger.addHandler(rotate_fh)
 
     return logger
 
@@ -53,7 +53,7 @@ def main():
 
     try:
         DankBot(config, logger).find_and_post_memes()
-    except Exception:
+    except Exception:  # pylint: disable=W0703
         logger.exception("Caught exception:")
 
 
