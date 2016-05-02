@@ -1,66 +1,58 @@
 from __future__ import print_function
 
+import sys
 import logging
-import logging.config
 from os import path
 from configparser import ConfigParser
 from logging.handlers import RotatingFileHandler
 
 from dankbot.dankbot import DankBot
 
-
-logging.config.fileConfig('log.conf', disable_existing_loggers=0)
-logger = logging.getLogger('dankbot')
-'''
-logging.basicConfig(
-    level=logging.INFO,
-    format='[%(levelname)s %(asctime)s] %(message)s'
-)
-logger = logging.getLogger(__name__)
-'''
-logger.info("TESTING")
-import sys
-sys.exit()
+LOG_FILE = "/var/log/dankbot/dankbot.log"
 
 
-def create_rotating_log(dir_path):
+def configure_logger():
     """
     Creates a rotating log
 
     :param dir_path: String, path to current directory
     """
-    # Set the log path to the log directory
-    log_path = path.join(dir_path, 'logs', 'dankbot.log')
-
-    # Add a rotating handler
-    handler = RotatingFileHandler(
-        log_path, 
-        backupCount=5,
-        maxBytes=1000000
-    )
+    # Formatting
     formatter = logging.Formatter('[%(levelname)s %(asctime)s] %(message)s')
-    handler.setFormatter(formatter)
 
-    logger.addHandler(handler)
+    # Set up STDOUT handler
+    sh = logging.StreamHandler(sys.stdout)
+    sh.setLevel(logging.DEBUG)
+    sh.setFormatter(formatter)
+
+    # Set up file logging with rotating file handler
+    rfh = RotatingFileHandler(LOG_FILE, backupCount=5, maxBytes=1000000)
+    rfh.setLevel(logging.DEBUG)
+    rfh.setFormatter(formatter)
+
+    # Create Logger object
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(sh)
+    logger.addHandler(rfh)
+
+    return logger
 
 
 def main():
-    # Get the current filepath
-    dir_path = path.dirname(__file__)
-
     # Setup the logger
-    create_rotating_log(dir_path)
+    logger = configure_logger()
 
     logger.info("Dankbot run starting")
 
     # Load the configuration options
     logger.info("Loading Dankbot Configuration")
     config = ConfigParser()
-    config_path = path.join(dir_path, u'dankbot.ini')
+    config_path = path.join(path.dirname(__file__), u'dankbot.ini')
     config.read(config_path)
 
     try:
-        DankBot(config).find_and_post_memes()
+        DankBot(config, logger).find_and_post_memes()
     except Exception:
         logger.exception("Caught exception:")
 
