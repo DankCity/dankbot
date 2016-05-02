@@ -10,7 +10,7 @@ from slacker import Slacker
 
 from dankbot.memes import ImgurMeme, DankMeme
 
-logger = logging.getLogger("Dankbot Rotating Log")
+logger = logging.getLogger(__name__)
 
 
 class DankBot(object):  # pylint: disable=R0902, R0903
