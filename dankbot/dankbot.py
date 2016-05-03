@@ -110,7 +110,12 @@ class DankBot(object):  # pylint: disable=R0902, R0903
         query = "SELECT * FROM memes WHERE links = '{0}'".format(meme.link)
 
         con = mdb.connect(
-            'localhost', self.username, self.password, self.database)
+            'localhost',
+            self.username,
+            self.password,
+            self.database,
+            charset='utf8'
+        )
 
         with con, con.cursor() as cur:
             try:
@@ -135,7 +140,12 @@ class DankBot(object):  # pylint: disable=R0902, R0903
                 """.format(meme.link, meme.source, str(dt.now()))
 
         con = mdb.connect(
-            'localhost', self.username, self.password, self.database)
+            'localhost',
+            self.username,
+            self.password,
+            self.database,
+            charset='utf8'
+        )
 
         with con, con.cursor() as cur:
             cur.execute(query)
@@ -147,7 +157,7 @@ class DankBot(object):  # pylint: disable=R0902, R0903
         Post the memes to slack
         '''
         log = "Posting {0} memes to slack:\n\t{1}"
-        self.logger.info(log.format(len(memes), "\n\t".join(map(str, memes))))
+        self.logger.info(log.format(len(memes), "\n\t".join([str(m) for m in memes])))
         ret_status = False
 
         slack = Slacker(self.slack_token)
