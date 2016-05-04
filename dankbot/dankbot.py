@@ -7,7 +7,7 @@ import praw
 import MySQLdb as mdb
 from slacker import Slacker
 
-from dankbot.memes import ImgurMeme, DankMeme
+from dankbot.memes import ImgurMeme, DankMeme, UndigestedError
 
 
 class DankBot(object):  # pylint: disable=R0902, R0903
@@ -163,7 +163,14 @@ class DankBot(object):  # pylint: disable=R0902, R0903
         slack = Slacker(self.slack_token)
         for meme in memes:
 
-            message = meme.format_for_slack()
+            try:
+                message = meme.format_for_slack()
+            except UndigestedError:
+                log = "Caught exception while formatting Imgur meme"
+                self.logger.exception(log)
+
+                message = "from {0}: {1}".format(meme.source, meme.link)
+
             resp = slack.chat.post_message(self.channel, message, as_user=True)
 
             if resp.successful:
