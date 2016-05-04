@@ -107,7 +107,7 @@ class DankBot(object):  # pylint: disable=R0902, R0903
         Checks to see if the supplied meme is already in the collection of known
         memes
         '''
-        query = "SELECT * FROM memes WHERE links = '{0}'".format(meme.link)
+        query = "SELECT * FROM memes WHERE links = '%s'" % meme.link
 
         con = mdb.connect(
             'localhost',
@@ -136,8 +136,8 @@ class DankBot(object):  # pylint: disable=R0902, R0903
         query = """INSERT INTO memes
                    (links, sources, datecreated)
                    VALUES
-                   ('{0}', '{1}', '{2}')
-                """.format(meme.link, meme.source, str(dt.now()))
+                   ('%s', '%s', '%s')
+                """ % (meme.link, meme.source, str(dt.now()))
 
         con = mdb.connect(
             'localhost',
