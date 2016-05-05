@@ -5,7 +5,9 @@ from datetime import datetime as dt
 
 import praw
 import MySQLdb as mdb
+from retryz import retry
 from slacker import Slacker
+from praw.errors import HTTPException
 
 from dankbot.memes import ImgurMeme, DankMeme, UndigestedError
 
@@ -76,12 +78,12 @@ class DankBot(object):  # pylint: disable=R0902, R0903
 
     def get_memes(self):
         '''
-        Collect top memes from r/dankmemes
+        Collect top memes from subreddits specified in dankbot.ini
         '''
 
         # Build the user_agent, this is important to conform to Reddit's rules
         user_agent = 'linux:dankscraper:0.0.3 (by /u/IHKAS1984)'
-        self.logger.info("Collecting memes using user agent: {0}".format(user_agent))
+        self.logger.info("User agent: {0}".format(user_agent))
 
         # Create connection object
         r_client = praw.Reddit(user_agent=user_agent)
@@ -91,7 +93,14 @@ class DankBot(object):  # pylint: disable=R0902, R0903
         # Get list of memes, filtering out NSFW entries
         for sub in self.subreddits:
             self.logger.debug("Collecting memes from subreddit: {0}".format(sub))
-            for meme in r_client.get_subreddit(sub).get_hot():
+            try:
+                subreddit_memes = self._get_memes_from_subreddit(r_client, sub)
+            except HTTPException:
+                log = "API failed to get memes for subreddit: {0}"
+                self.logger.exception(log.format(sub))
+                continue
+
+            for meme in subreddit_memes:
                 if meme.over_18 and not self.include_nsfw:
                     continue
 
@@ -101,6 +110,11 @@ class DankBot(object):  # pylint: disable=R0902, R0903
                     memes.append(DankMeme(meme.url, sub))
 
         return memes
+
+    @staticmethod
+    @retry(on_error=HTTPException, limit=3, wait=2)
+    def _get_memes_from_subreddit(client, subreddit):
+        return client.get_subreddit(subreddit).get_hot()
 
     def in_collection(self, meme):
         '''

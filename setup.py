@@ -16,10 +16,11 @@ setup(
         ]
     },
     install_requires=[
-        'slacker',
         'praw',
-        'configparser>=3.5.0b2',
+        'retryz',
+        'slacker',
         'mysqlclient',
         'imgurpython',
+        'configparser>=3.5.0b2',
     ],
 )
