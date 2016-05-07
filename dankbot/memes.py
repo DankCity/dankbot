@@ -142,7 +142,7 @@ class ImgurMeme(Meme):
         """
         # Entry point format: imgur.com/gallery/{gallery_post_id}
         # Entry point format: imgur.com/gallery/{gallery_post_id}/new
-        gallery_post_id = self.link.split('/')[-1].split('/new')[0]
+        gallery_post_id = self.link.split('/new')[0].strip('/').split('/')[-1]
         response = self._get_client().gallery_item(gallery_post_id)
 
         if response.is_album:
