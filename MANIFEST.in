@@ -1,0 +1,2 @@
+include versioneer.py
+include dankbot/_version.py
