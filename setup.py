@@ -1,11 +1,13 @@
 """
 Use setup tools to setup the dankbot as a standard python module
 """
+import versioneer
 from setuptools import find_packages, setup
 
 setup(
     name="dankbot",
-    version="0.0.3",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description="Slack bot for posting dank memes",
     packages=find_packages(),
     test_suite="tests",
@@ -16,7 +18,7 @@ setup(
         ]
     },
     install_requires=[
-        'praw',
+        'praw==3.6.0',
         'retryz',
         'slacker',
         'mysqlclient',
