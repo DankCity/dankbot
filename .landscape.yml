@@ -4,3 +4,6 @@ max-line-length: 100
 autodetect: yes
 python-targets:
     - 3
+ignore-paths:
+  - versioneer.py
+  - dankbot/_version.py
