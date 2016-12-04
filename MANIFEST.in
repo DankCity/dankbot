@@ -1,2 +1,3 @@
 include versioneer.py
 include dankbot/_version.py
+include dankbot/sample.dankbot.ini
