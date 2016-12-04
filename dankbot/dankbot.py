@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import random
+from sys import platform
 from datetime import datetime as dt
 
 import praw
@@ -9,6 +10,7 @@ from retryz import retry
 from slacker import Slacker
 from praw.errors import HTTPException
 
+from dankbot import __version__ as dankbot_version
 from dankbot.memes import ImgurMeme, DankMeme, UndigestedError
 
 
@@ -82,7 +84,9 @@ class DankBot(object):  # pylint: disable=R0902, R0903
         '''
 
         # Build the user_agent, this is important to conform to Reddit's rules
-        user_agent = 'linux:dankscraper:0.0.3 (by /u/IHKAS1984)'
+        dankscraper_version = dankbot_version.split("+")[0]
+        user_agent = '{0}:dankscraper:{1} (by /u/IHKAS1984)'
+        user_agent = user_agent.format(platform, dankscraper_version)
         self.logger.info("User agent: {0}".format(user_agent))
 
         # Create connection object
