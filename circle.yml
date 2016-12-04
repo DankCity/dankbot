@@ -4,9 +4,9 @@ machine:
 
 general:
   artifacts:
-    - .tox/tox/junit.xml
-    - .tox/tox/flake8.txt
-    - .tox/coverage.xml
+    - .tox/py3/junit.xml
+    - .tox/lint/flake8.txt
+    - coverage.xml
 
 dependencies:
   override:
@@ -20,8 +20,8 @@ test:
   post:
   - coveralls
   - mkdir -p $CIRCLE_TEST_REPORTS/dankbot
-  - cp .tox/tox/junit.xml $CIRCLE_TEST_REPORTS/dankbot
-  - cp .tox/tox/flake8.txt $CIRCLE_TEST_REPORTS/dankbot
+  - cp .tox/py3/junit.xml $CIRCLE_TEST_REPORTS/dankbot
+  - cp .tox/lint/flake8.txt $CIRCLE_TEST_REPORTS/dankbot
   - cp -R htmlcov $CIRCLE_TEST_REPORTS/dankbot
   - cp coverage.xml $CIRCLE_TEST_REPORTS/dankbot
 

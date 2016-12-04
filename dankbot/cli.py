@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 
 import sys
 import logging
@@ -55,7 +55,3 @@ def main():
         DankBot(config, logger).find_and_post_memes()
     except Exception:  # pylint: disable=W0703
         logger.exception("Caught exception:")
-
-
-if __name__ == "__main__":
-    main()
