@@ -20,7 +20,7 @@ class DankBot(object):  # pylint: disable=R0902, R0903
         # pylint: disable=too-many-instance-attributes
 
         self.slack_token = config['slack']['token']
-        self.channel = config['slack']['channel']
+        self.slack_channel = config['slack']['channel']
 
         self.database = config['mysql']['database']
         self.username = config['mysql']['username']
@@ -116,7 +116,7 @@ class DankBot(object):  # pylint: disable=R0902, R0903
     def _get_memes_from_subreddit(client, subreddit):
         return client.get_subreddit(subreddit).get_hot()
 
-    def in_collection(self, meme):
+    def in_collection(self, meme):  # pragma no cover
         '''
         Checks to see if the supplied meme is already in the collection of known
         memes
@@ -143,7 +143,7 @@ class DankBot(object):  # pylint: disable=R0902, R0903
 
         return True if resp else False
 
-    def add_to_collection(self, meme):
+    def add_to_collection(self, meme):  # pragma no cover
         '''
         Adds a meme to the collection
         '''
@@ -176,7 +176,6 @@ class DankBot(object):  # pylint: disable=R0902, R0903
 
         slack = Slacker(self.slack_token)
         for meme in memes:
-
             try:
                 message = meme.format_for_slack()
             except UndigestedError:
@@ -185,7 +184,7 @@ class DankBot(object):  # pylint: disable=R0902, R0903
 
                 message = "from {0}: {1}".format(meme.source, meme.link)
 
-            resp = slack.chat.post_message(self.channel, message, as_user=True)
+            resp = slack.chat.post_message(self.slack_channel, message, as_user=True)
 
             if resp.successful:
                 self.add_to_collection(meme)
