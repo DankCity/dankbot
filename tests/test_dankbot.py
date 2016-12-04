@@ -64,7 +64,7 @@ def dank_meme():
 
 @pytest.fixture(scope="function")
 def imgur_meme():
-    return MockMeme(False, DANK_MEME_URL)
+    return MockMeme(False, IMGUR_MEME_URL)
 
 
 @pytest.fixture(scope="function")
@@ -189,14 +189,18 @@ def test_yes_nsfw_and_18plus(ic, atc, slack, praw, config, logger):
     assert slack.post_message.call_args == call(MOCK_CHANNEL, message, as_user=True)
 
 
+@patch('dankbot.dankbot.praw')
+@patch('dankbot.memes.ImgurClient')
 @patch.object(DankBot, 'add_to_collection')
 @patch.object(DankBot, 'in_collection')
-def test_post_imgur_meme(ic, atc, slack, praw, config, logger, imgur_meme):
+def test_post_imgur_meme(ic, atc, imgur, praw, slack, config, logger, imgur_meme):
     ic.return_value = False
-    praw.get_hot.return_value[0].over_18 = True
+    imgur.return_value = Exception("Preventing connection")
+    praw.Reddit.return_value = praw
+    praw.get_subreddit.return_value = praw
+    praw.get_hot.return_value = [imgur_meme, ]
 
     dankbot = DankBot(config, logger)
-    dankbot.include_nsfw = True
     dankbot.subreddits = dankbot.subreddits[:1]
 
     resp = dankbot.find_and_post_memes()
@@ -205,5 +209,5 @@ def test_post_imgur_meme(ic, atc, slack, praw, config, logger, imgur_meme):
     assert resp is True
     assert atc.called
 
-    message = "from {0}: {1}".format(SUB_1, DANK_MEME_URL)
+    message = "from {0}: {1}".format(SUB_1, IMGUR_MEME_URL)
     assert slack.post_message.call_args == call(MOCK_CHANNEL, message, as_user=True)

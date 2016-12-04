@@ -95,7 +95,7 @@ class DankBot(object):  # pylint: disable=R0902, R0903
             self.logger.debug("Collecting memes from subreddit: {0}".format(sub))
             try:
                 subreddit_memes = self._get_memes_from_subreddit(r_client, sub)
-            except HTTPException:
+            except HTTPException:  # pragma: no cover
                 log = "API failed to get memes for subreddit: {0}"
                 self.logger.exception(log.format(sub))
                 continue
