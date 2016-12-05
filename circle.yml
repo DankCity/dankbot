@@ -12,21 +12,22 @@ dependencies:
   override:
     - pip install --upgrade pip
     - pip install --upgrade tox
-    - pip install --upgrade python-coveralls
+    - pip install --upgrade coveralls
 
 test:
   override:
     - tox -r
   post:
-  - coveralls
-  - mkdir -p $CIRCLE_TEST_REPORTS/dankbot
-  - cp .tox/py3/junit.xml $CIRCLE_TEST_REPORTS/dankbot
-  - cp .tox/lint/flake8.txt $CIRCLE_TEST_REPORTS/dankbot
-  - cp -R htmlcov $CIRCLE_TEST_REPORTS/dankbot
-  - cp coverage.xml $CIRCLE_TEST_REPORTS/dankbot
+    - coveralls
+    - mkdir -p $CIRCLE_TEST_REPORTS/dankbot
+    - cp .tox/py3/junit.xml $CIRCLE_TEST_REPORTS/dankbot
+    - cp .tox/lint/flake8.txt $CIRCLE_TEST_REPORTS/dankbot
+    - cp -R htmlcov $CIRCLE_TEST_REPORTS/dankbot
+    - cp coverage.xml $CIRCLE_TEST_REPORTS/dankbot
 
 deployment:
-  production:
-    branch: notmaster
+  release:
+    tag: /[0-9]+(\.[0-9]+)*/
+    owner: DankCity
     commands:
-      -  ssh $DEPLOY_HOST $DEPLOY_PATH/deploy.sh
+      -  echo "Mock deploy of tagged release"
