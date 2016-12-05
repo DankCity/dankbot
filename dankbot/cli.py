@@ -9,10 +9,12 @@ import appdirs
 from dankbot.dankbot import DankBot
 from dankbot import APPNAME, APPAUTHOR
 
+DEFAULT_CONFIG = 'dankbot.ini'
+
 
 def load_config():
     config = ConfigParser()
-    config_path = os.path.join(os.path.dirname(__file__), u'dankbot.ini')
+    config_path = os.path.join(os.path.dirname(__file__), DEFAULT_CONFIG)
     config.read(config_path)
 
     return config

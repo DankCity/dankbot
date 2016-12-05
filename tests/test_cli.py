@@ -4,6 +4,7 @@ from unittest.mock import patch
 from dankbot import cli
 
 
+@patch('dankbot.cli.DEFAULT_CONFIG', 'dankbot.sample.ini')
 @patch('dankbot.cli.logging.getLogger')
 @patch('dankbot.cli.RotatingFileHandler')
 @patch('dankbot.cli.DankBot')
@@ -19,6 +20,7 @@ def test_main(dankbot, _, gl_mock):
     assert dankbot.find_and_post_memes.called
 
 
+@patch('dankbot.cli.DEFAULT_CONFIG', 'dankbot.sample.ini')
 @patch('dankbot.cli.configure_logger')
 @patch('dankbot.cli.DankBot')
 def test_main_exception(dankbot, logger_mock):
