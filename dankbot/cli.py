@@ -1,14 +1,16 @@
-
-
+import os
 import sys
 import logging
-from os import path
 from configparser import ConfigParser
 from logging.handlers import RotatingFileHandler
 
-from dankbot.dankbot import DankBot
+import appdirs
 
-LOG_FILE = "/var/log/dankbot/dankbot.log"
+from dankbot.dankbot import DankBot
+from dankbot import APPNAME, APPAUTHOR
+
+LOG_DIR = appdirs.user_log_dir(APPNAME, APPAUTHOR)
+LOG_FILE = os.path.join(LOG_DIR, "dankbot.log")
 
 
 def configure_logger():
@@ -17,6 +19,10 @@ def configure_logger():
 
     :param dir_path: String, path to current directory
     """
+    # Create the logging directory if it doesn't exist
+    if not os.path.exists(LOG_DIR):
+        os.makedirs(LOG_DIR)
+
     # Formatting
     formatter = logging.Formatter('[%(levelname)s %(asctime)s] %(message)s')
 
@@ -44,11 +50,12 @@ def main():
     logger = configure_logger()
 
     logger.info("Dankbot run starting")
+    logger.info("Logging to: {0}".format(LOG_FILE))
 
     # Load the configuration options
     logger.info("Loading Dankbot Configuration")
     config = ConfigParser()
-    config_path = path.join(path.dirname(__file__), u'dankbot.ini')
+    config_path = os.path.join(os.path.dirname(__file__), u'dankbot.ini')
     config.read(config_path)
 
     try:
