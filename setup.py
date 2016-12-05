@@ -12,7 +12,7 @@ here = path.dirname(path.abspath(__file__))
 with open(path.join(here, 'README.rst')) as f:
     long_description = f.read()
 
-install_requires=[
+install_requires = [
     'appdirs==1.4.0',
     'configparser==3.5.0',
     'imgurpython==1.1.7',

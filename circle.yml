@@ -16,6 +16,8 @@ dependencies:
 
 test:
   override:
+    - git fetch --unshallow
+    - git fetch --tags
     - tox -r
   post:
     - coveralls
@@ -30,5 +32,10 @@ deployment:
     tag: /[0-9]+(\.[0-9]+)*/
     owner: DankCity
     commands:
+      - git status
+      - git tag
+      - git --no-pager log -n 8
       - pip install twine
-      - echo "Mock deploy of tagged release"
+      - pip install wheel
+      - python setup.py sdist bdist_wheel
+      - twine upload --config-file ./.pypirc -r pypitest -p $PYPI_TEST_PW dist/*
