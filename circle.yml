@@ -27,6 +27,6 @@ test:
 
 deployment:
   production:
-    branch: master
+    branch: notmaster
     commands:
       -  ssh $DEPLOY_HOST $DEPLOY_PATH/deploy.sh
