@@ -4,4 +4,3 @@ del get_versions
 
 APPNAME = "dankbot"
 APPAUTHOR = "DankCity"
-

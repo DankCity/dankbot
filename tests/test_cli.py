@@ -22,7 +22,7 @@ def test_main(dankbot, _, gl_mock):
 @patch('dankbot.cli.configure_logger')
 @patch('dankbot.cli.DankBot')
 def test_main_exception(dankbot, logger_mock):
-    logger_mock.return_value = logger_mock
+    logger_mock.return_value = logger_mock, None
     dankbot.return_value = ValueError("Mock exception")
 
     cli.main()
