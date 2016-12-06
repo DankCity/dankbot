@@ -12,26 +12,32 @@ Dankbot
 .. |CodeHealth| image:: https://landscape.io/github/DankCity/dankbot/master/landscape.svg?style=flat
    :target: https://landscape.io/github/DankCity/dankbot/master
    :alt: Code Health
-.. |StoriesInReady| https://badge.waffle.io/DankCity/dankbot.svg?label=ready&title=Ready
-    :target: http://waffle.io/DankCity/dankbot
+.. |StoriesInReady| image:: https://badge.waffle.io/DankCity/dankbot.svg?label=ready&title=Ready
+   :target: http://waffle.io/DankCity/dankbot
 
 A Slack Bot that scrapes memes from subreddits and posts them to slack
 
-## Steps to run
+Steps to run
+============
 
-### Clone into directory
-.. code-block:: shell
+Clone into directory
+--------------------
+::
+
     cd /opt
     sudo mkdir dankbot && sudo chown <user>:<user> dankbot
     git clone git@github.com:DankCity/dankbot.git
 
-### Setup INI file
-.. code-block:: shell
+Setup INI file
+--------------
+::
+
     cd /opt/dankbot
     cp dankbot/dankbot.ini.sample dankbot/dankbot.ini
 
 Edit the INI file to fill in the missing token, username, and password fields:
 ::
+
     (.venv35)➜  dankbot git:(master) ✗ cat dankbot/dankbot.ini.sample
     [slack]
     token: <put here>
@@ -53,30 +59,39 @@ Edit the INI file to fill in the missing token, username, and password fields:
     include_nsfw: <boolean>
     max_memes: 3
 
-### Create and activate a virtual environment
-.. code-block:: shell
+Create and activate a virtual environment
+-----------------------------------------
+::
+
     cd /opt/dankbot
     virtualenv --python=`which python3` env
     source env/bin/activate
 
-### Install the python package
-.. code-block:: shell
+Install the python package
+--------------------------
+::
+
     cd /opt/dankbot
     source env/bin/activate
     pip install -e .
 
-### Create logging folder
-.. code-block:: shell
+Create logging folder
+---------------------
+::
+
     sudo mkdir /var/log/dankbot
     sudo chown <user> /var/log/dankbot
 
-### Add an entry to your crontab:
+Add an entry to your crontab
+-----------------------------
 Edit the crontab with your favorite editor
-.. code-block:: shell
+::
+
     sudo vi /etc/crontab
 
 And add an entry like so:
 ::
+
     # /etc/crontab: system-wide crontab
     # Unlike any other crontab you don't have to run the 'crontab'
     # command to install the new version when you edit this file
