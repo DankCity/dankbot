@@ -10,6 +10,7 @@ from retryz import retry
 from slacker import Slacker
 from praw.errors import HTTPException
 
+from dankbot.db import DB
 from dankbot import __version__ as dankbot_version
 from dankbot.memes import ImgurMeme, DankMeme, UndigestedError
 
@@ -42,6 +43,9 @@ class DankBot(object):  # pylint: disable=R0902, R0903
         # Get logger
         self.logger = logger
 
+        # Create DB connection
+        self.db = DB(create_db=True)
+
     def find_and_post_memes(self):
         """ Find memes from subreddits and post them to slack
         """
@@ -50,7 +54,7 @@ class DankBot(object):  # pylint: disable=R0902, R0903
         self.logger.info("Found {0} memes".format(len(memes)))
 
         # Filter out any known dank memes
-        filtered_memes = [m for m in memes if not self.in_collection(m)]
+        filtered_memes = [m for m in memes if not self.db.in_collection(m)]
         self.logger.info(
             "Removed {0} known memes".format(len(memes) - len(filtered_memes)))
 
@@ -120,56 +124,6 @@ class DankBot(object):  # pylint: disable=R0902, R0903
     def _get_memes_from_subreddit(client, subreddit):
         return client.get_subreddit(subreddit).get_hot()
 
-    def in_collection(self, meme):  # pragma no cover
-        '''
-        Checks to see if the supplied meme is already in the collection of known
-        memes
-        '''
-        query = "SELECT * FROM memes WHERE links = '%s'" % meme.link
-
-        con = mdb.connect(
-            'localhost',
-            self.username,
-            self.password,
-            self.database,
-            charset='utf8'
-        )
-
-        with con, con.cursor() as cur:
-            try:
-                resp = cur.execute(query)
-            except UnicodeEncodeError:
-                # Indicates a link with oddball characters, just ignore it
-                resp = True
-
-                log = "Bad character in meme: {0}"
-                self.logger.exception(log.format(meme))
-
-        return True if resp else False
-
-    def add_to_collection(self, meme):  # pragma no cover
-        '''
-        Adds a meme to the collection
-        '''
-        query = """INSERT INTO memes
-                   (links, sources, datecreated)
-                   VALUES
-                   ('%s', '%s', '%s')
-                """ % (meme.link, meme.source, str(dt.now()))
-
-        con = mdb.connect(
-            'localhost',
-            self.username,
-            self.password,
-            self.database,
-            charset='utf8'
-        )
-
-        with con, con.cursor() as cur:
-            cur.execute(query)
-
-        return
-
     def post_to_slack(self, memes):
         '''
         Post the memes to slack
@@ -191,7 +145,7 @@ class DankBot(object):  # pylint: disable=R0902, R0903
             resp = slack.chat.post_message(self.slack_channel, message, as_user=True)
 
             if resp.successful:
-                self.add_to_collection(meme)
+                self.db.add_to_collection(meme)
                 ret_status = True
 
         return ret_status
