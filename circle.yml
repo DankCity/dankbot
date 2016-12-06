@@ -8,6 +8,10 @@ general:
     - .tox/lint/flake8.txt
     - coverage.xml
 
+checkout:
+  post:
+    - git fetch --tags && git tag
+
 dependencies:
   override:
     - pip install --upgrade pip
@@ -16,8 +20,6 @@ dependencies:
 
 test:
   override:
-    - git fetch --unshallow
-    - git fetch --tags
     - tox -r
   post:
     - coveralls
