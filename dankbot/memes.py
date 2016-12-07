@@ -9,9 +9,10 @@ class Meme(object):  # pylint: disable=R0903
     """
     Base class for meme objects
     """
-    def __init__(self, link, source):
-        self.link = link
-        self.source = source
+    def __init__(self, meme):
+        self.source = str(meme.subreddit)
+        self.reddit_id = meme.id
+        self.link = meme.url
 
     def __str__(self):
         return str(self.link)

@@ -16,7 +16,6 @@ install_requires = [
     'appdirs==1.4.0',
     'configparser==3.5.0',
     'imgurpython==1.1.7',
-    'mysqlclient==1.3.9',
     'praw==3.6.0',
     'retryz==0.1.8',
     'slacker==0.9.30',

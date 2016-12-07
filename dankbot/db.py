@@ -15,9 +15,10 @@ DB_NAME = 'dankbot.db'
 class DB(object):
     db_dir = None
     db_path = None
+
     def __init__(self, db_dir=None, create_db=False):
         self.db_dir = db_dir or user_data_dir(APPNAME, APPAUTHOR)
-        self.db_path =join(self.db_dir, DB_NAME)
+        self.db_path = join(self.db_dir, DB_NAME)
 
         if create_db is True:
             self._create_db_and_table()
@@ -45,9 +46,9 @@ class DB(object):
         logger.info("Creating database at: {0}".format(self.db_path))
 
         query = """CREATE TABLE IF NOT EXISTS memes (
-            id INTEGER PRIMARY KEY,
-            link VARCHAR(255) NOT NULL,
+            reddit_id VARCHAR(255) PRIMARY KEY NOT NULL,
             source VARCHAR(255) NOT NULL,
+            link VARCHAR(255) NOT NULL,
             created DATETIME DEFAULT CURRENT_TIMESTAMP,
             last_seen DATETIME DEFAULT CURRENT_TIMESTAMP
             );"""
@@ -58,16 +59,16 @@ class DB(object):
         """ Add meme to database collection
         """
 
-        query = """INSERT INTO memes (link, source)
-                   VALUES(?,?)"""
+        query = """INSERT INTO memes (reddit_id, source, link)
+                   VALUES(?,?,?)"""
 
-        self._query(query, (meme.link, meme.source))
+        self._query(query, (meme.reddit_id, meme.source, meme.link))
 
     def in_collection(self, meme):
-        query = "SELECT * FROM memes WHERE link=:link"
+        query = "SELECT * FROM memes WHERE reddit_id=:reddit_id"
 
         try:
-            resp = self._query(query, {'link': meme.link})
+            resp = self._query(query, {'reddit_id': meme.reddit_id})
         except UnicodeEncodeError:
             # Indicates a link with oddball characters, just ignore it
             resp = True
@@ -77,16 +78,10 @@ class DB(object):
 
         return True if resp else False
 
+    def update_collection(self, meme):
+        """ Update the last_seen column with the current timestamp
+        """
+        query = """UPDATE memes SET last_seen=(CURRENT_TIMESTAMP)
+                   WHERE reddit_id=(:id)"""
 
-if __name__ == "__main__":
-    global APPNAME
-    global APPAUTHOR
-
-    APPNAME = 'dankbot'
-    APPAUTHOR = 'levi'
-
-    print("About to check SQLite version")
-    db = DB()
-    # print(db._query('SELECT SQLITE_VERSION()'))
-    print("About to create table")
-    print(db.create_db_and_table())
+        self._query(query, {'id': meme.reddit_id})

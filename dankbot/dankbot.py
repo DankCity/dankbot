@@ -2,10 +2,8 @@ from __future__ import print_function
 
 import random
 from sys import platform
-from datetime import datetime as dt
 
 import praw
-import MySQLdb as mdb
 from retryz import retry
 from slacker import Slacker
 from praw.errors import HTTPException
@@ -54,15 +52,22 @@ class DankBot(object):  # pylint: disable=R0902, R0903
         self.logger.info("Found {0} memes".format(len(memes)))
 
         # Filter out any known dank memes
-        filtered_memes = [m for m in memes if not self.db.in_collection(m)]
-        self.logger.info(
-            "Removed {0} known memes".format(len(memes) - len(filtered_memes)))
+        new_memes, old_memes = list(), list()
+        for meme in memes:
+            if self.db.in_collection(meme):
+                # Mark it as having been seen
+                self.db.update_collection(meme)
+                old_memes.append(meme)
+            else:
+                new_memes.append(meme)
+
+        self.logger.info("Removed {0} known memes".format(len(old_memes)))
 
         # Shuffle memes
-        random.shuffle(filtered_memes)
+        random.shuffle(new_memes)
 
         # Cut down to the max memes
-        pared_memes = filtered_memes[:self.max_memes]
+        pared_memes = new_memes[:self.max_memes]
         self.logger.info("Truncated to {0} memes".format(len(pared_memes)))
 
         # Bale here if nothing is left
@@ -113,9 +118,9 @@ class DankBot(object):  # pylint: disable=R0902, R0903
                     continue
 
                 if "imgur.com/" in meme.url:
-                    memes.append(ImgurMeme(meme.url, sub))
+                    memes.append(ImgurMeme(meme))
                 else:
-                    memes.append(DankMeme(meme.url, sub))
+                    memes.append(DankMeme(meme))
 
         return memes
 
