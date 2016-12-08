@@ -6,13 +6,13 @@ from setuptools import find_packages, setup
 
 import versioneer
 
-here = path.dirname(path.abspath(__file__))
+HERE = path.dirname(path.abspath(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.rst')) as f:
-    long_description = f.read()
+with open(path.join(HERE, 'README.rst')) as f:
+    LONG_DESCRIPTION = f.read()
 
-install_requires = [
+INSTALL_REQUIRES = [
     'appdirs==1.4.0',
     'configparser==3.5.0',
     'imgurpython==1.1.7',
@@ -32,10 +32,10 @@ setup(
     description="Slack bot for posting dank memes from Reddit",
     packages=find_packages(),
     license='MIT',
-    long_description=long_description,
+    long_description=LONG_DESCRIPTION,
     test_suite="tests",
     tests_require=['tox'],
-    install_requires=install_requires,
+    install_requires=INSTALL_REQUIRES,
     entry_points={
         "console_scripts": [
             "dankbot=dankbot.cli:main",

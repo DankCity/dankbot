@@ -1,13 +1,10 @@
 import os
 from appdirs import user_data_dir
-import logging
 import sqlite3 as lite
 from os.path import join
 from contextlib import closing
 
 from dankbot import APPNAME, APPAUTHOR
-
-logger = logging.getLogger(__name__)
 
 DB_NAME = 'dankbot.db'
 
@@ -17,7 +14,9 @@ class DB(object):
     db_path = None
     db_con = None
 
-    def __init__(self, db_dir=None, db_name=None, create_db=False):
+    def __init__(self, logger, db_dir=None, create_db=False):
+        self.logger = logger
+
         self.db_dir = db_dir or user_data_dir(APPNAME, APPAUTHOR)
         self.db_path = join(self.db_dir, DB_NAME)
 
@@ -39,15 +38,15 @@ class DB(object):
         """ Create the database and table if it doesn't exist
         """
         if os.path.exists(self.db_path):  # pragma: no cover
-            logger.info("Will not create database: already exists at:"
-                        " {0}".format(self.db_path))
+            self.logger.info("Will not create database: already exists at:"
+                             " {0}".format(self.db_path))  # pylint: disable=W1202
             return
 
         # Create the data directory if it doesn't exist
         if not os.path.exists(self.db_dir):  # pragma: no cover
             os.makedirs(self.db_dir)
 
-        logger.info("Creating database at: {0}".format(self.db_path))
+        self.logger.info("Creating database at: {0}".format(self.db_path))  # pylint: disable=W1202
 
         query = """CREATE TABLE IF NOT EXISTS memes (
             reddit_id VARCHAR(255) PRIMARY KEY NOT NULL,

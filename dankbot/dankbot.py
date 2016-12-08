@@ -38,7 +38,7 @@ class DankBot(object):  # pylint: disable=R0902, R0903
         self.logger = logger
 
         # Create DB connection
-        self.db = DB(create_db=True)
+        self.db = DB(logger, create_db=True)  # pylint: disable=C0103
 
     def find_and_post_memes(self):
         """ Find memes from subreddits and post them to slack
