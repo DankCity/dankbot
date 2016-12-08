@@ -33,30 +33,38 @@ Setup INI file
 ::
 
     cd /opt/dankbot
-    cp dankbot/dankbot.ini.sample dankbot/dankbot.ini
+    cp dankbot/dankbot.sample.ini dankbot/dankbot.ini
 
 Edit the INI file to fill in the missing token, username, and password fields:
 ::
 
-    (.venv35)➜  dankbot git:(master) ✗ cat dankbot/dankbot.ini.sample
+    (.venv35)➜  dankbot git:(master) ✗ cat dankbot/dankbot.sample.ini
+    [dankbot]
+    # Leave directory blank and dankbot will determine the best place to
+    # log to your platform
+    log_to_file: true
+    directory:
+    file_name: dankbot.log
+    backups: 5
+    max_bytes: 1000000
+
     [slack]
+    # Follow instructions at https://my.slack.com/services/new/bot
     token: <put here>
     channel: #random
 
     [reddit]
-    subreddits: dankmemes, fishpost, me_irl, 4chan
+    # r/dankmemes, r/funnygifs, etc
+    subreddits: dankmemes, funnygifs
 
     [imgur]
-    client_id: <client_id>
-    client_secret: <client Secret>
-
-    [mysql]
-    database: <db>
-    username: <username>
-    password: <password>
+    # Register at https://api.imgur.com/oauth2/addclient
+    # Select Anonymous usage
+    client_id: <your client ID>
+    client_secret: <your client secret>
 
     [misc]
-    include_nsfw: <boolean>
+    include_nsfw: false
     max_memes: 3
 
 Create and activate a virtual environment
@@ -74,13 +82,6 @@ Install the python package
     cd /opt/dankbot
     source env/bin/activate
     pip install -e .
-
-Create logging folder
----------------------
-::
-
-    sudo mkdir /var/log/dankbot
-    sudo chown <user> /var/log/dankbot
 
 Add an entry to your crontab
 -----------------------------
