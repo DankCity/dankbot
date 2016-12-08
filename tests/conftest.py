@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 
 from tests import RedditMeme, test_vars as tv
-from dankbot.memes import ImgurMeme, DankMeme, Meme, UndigestedError
+from dankbot.memes import ImgurMeme, DankMeme, Meme
 
 
 @pytest.fixture
@@ -63,5 +63,3 @@ def client():
         client.get_album.return_value = client
 
         yield client
-
-

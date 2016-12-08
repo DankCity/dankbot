@@ -1,10 +1,13 @@
+import time
 import logging
 from unittest import mock
-from unittest.mock import patch, call
+from unittest.mock import patch
 from configparser import ConfigParser
 
 import pytest
 
+from tests import test_vars as tv, RedditMeme
+from dankbot.db import DB
 from dankbot.dankbot import DankBot
 from dankbot.memes import ImgurMeme
 
@@ -23,17 +26,11 @@ SUB_2 = "fishpost"
 SUB_3 = "memes"
 SUBREDDITS = ", ".join([SUB_1, SUB_2, SUB_3])
 
-IMGUR_CLIENT_ID = "mock imgur client id"
-IMGUR_CLIENT_SECRET = "mock imgur secret"
+CLIENT_ID = "mock imgur client id"
+CLIENT_SECRET = "mock imgur secret"
 
 DANK_MEME_URL = "http://dank.meme.url"
 IMGUR_MEME_URL = "http://imgur.com/mockhash"
-
-
-class MockMeme(object):
-    def __init__(self, over_18, url):
-        self.over_18 = False
-        self.url = url
 
 
 @pytest.fixture(scope="function")
@@ -48,23 +45,33 @@ def slack():
 
 
 @pytest.fixture(scope="function")
-def praw(dank_meme):
+def praw():
     with patch('dankbot.dankbot.praw') as praw:
         praw.Reddit.return_value = praw
         praw.get_subreddit.return_value = praw
-        praw.get_hot.return_value = [dank_meme, ]
+        praw.get_hot.return_value = [RedditMeme(), ]
 
         yield praw
 
 
 @pytest.fixture(scope="function")
-def dank_meme():
-    return MockMeme(False, DANK_MEME_URL)
+def praw_nsfw():
+    with patch('dankbot.dankbot.praw') as praw:
+        praw.Reddit.return_value = praw
+        praw.get_subreddit.return_value = praw
+        praw.get_hot.return_value = [RedditMeme(over_18=True), ]
+
+        yield praw
 
 
 @pytest.fixture(scope="function")
-def imgur_meme():
-    return MockMeme(False, IMGUR_MEME_URL)
+def praw_imgur():
+    with patch('dankbot.dankbot.praw') as praw:
+        praw.Reddit.return_value = praw
+        praw.get_subreddit.return_value = praw
+        praw.get_hot.return_value = [RedditMeme(url=tv['TEST_IMAGE_LINK_1']), ]
+
+        yield praw
 
 
 @pytest.fixture(scope="function")
@@ -72,26 +79,17 @@ def config():
     ''' Returns a mock configuration object
     '''
     config_dict = {
-        'slack': {
-            'channel': MOCK_CHANNEL,
-            'token': MOCK_TOKEN,
+        'dankbot': {
+            'log_to_file': True,
+            'directory': '',
+            'file_name': 'dankbot.log',
+            'backups': 5,
+            'max_bytes': 1000000
         },
-        'mysql': {
-            'database': MOCK_DB,
-            'username': MOCK_UN,
-            'password': MOCK_PW,
-        },
-        'misc': {
-            'include_nsfw': INCLUDE_NSFW,
-            'max_memes': MAX_MEMES
-        },
-        'reddit': {
-            'subreddits': SUBREDDITS
-        },
-        'imgur': {
-            'client_id': IMGUR_CLIENT_ID,
-            'client_secret': IMGUR_CLIENT_SECRET
-        }
+        'imgur': {'client_id': CLIENT_ID, 'client_secret': CLIENT_SECRET},
+        'misc': {'include_nsfw': INCLUDE_NSFW, 'max_memes': MAX_MEMES},
+        'reddit': {'subreddits': SUBREDDITS},
+        'slack': {'channel': MOCK_CHANNEL, 'token': MOCK_TOKEN}
     }
 
     config_ = ConfigParser()
@@ -107,14 +105,30 @@ def logger():
     return mock.create_autospec(logging.Logger)
 
 
-def test___init__(config, logger):
+@pytest.fixture
+def dankbot(config, logger, praw):
+    with patch('dankbot.db.join', return_value=":memory:"):
+        yield DankBot(config, logger)
+
+
+@pytest.fixture
+def dankbot_nsfw(config, logger, praw_nsfw):
+    with patch('dankbot.db.join', return_value=":memory:"):
+        yield DankBot(config, logger)
+
+
+@pytest.fixture
+def dankbot_imgur(config, logger, praw_imgur):
+    with patch('dankbot.db.join', return_value=":memory:"):
+        yield DankBot(config, logger)
+
+
+@patch('dankbot.db.join', return_value=":memory:")
+def test___init__(_, config, logger):
     dankbot = DankBot(config, logger)
 
     assert dankbot.slack_token == MOCK_TOKEN
     assert dankbot.slack_channel == MOCK_CHANNEL
-    assert dankbot.database == MOCK_DB
-    assert dankbot.username == MOCK_UN
-    assert dankbot.password == MOCK_PW
     assert dankbot.include_nsfw == INCLUDE_NSFW
     assert dankbot.max_memes == MAX_MEMES
     assert SUB_1 in dankbot.subreddits
@@ -122,92 +136,86 @@ def test___init__(config, logger):
     assert SUB_3 in dankbot.subreddits
     assert dankbot.logger == logger
 
-    assert ImgurMeme.client_id == IMGUR_CLIENT_ID
-    assert ImgurMeme.client_secret == IMGUR_CLIENT_SECRET
+    assert isinstance(dankbot.db, DB)
+    assert dankbot.db.db_path == ":memory:"
+
+    assert ImgurMeme.client_id == CLIENT_ID
+    assert ImgurMeme.client_secret == CLIENT_SECRET
 
 
-@patch.object(DankBot, 'add_to_collection')
-@patch.object(DankBot, 'in_collection')
-def test_find_and_post(ic, atc, praw, slack, config, logger):
-    ic.return_value = False
-
-    dankbot = DankBot(config, logger)
+def test_find_and_post(dankbot, slack):
     dankbot.subreddits = dankbot.subreddits[:1]
 
     resp = dankbot.find_and_post_memes()
 
     assert slack.post_message.called
     assert resp is True
-    assert atc.called
 
-    message = "from {0}: {1}".format(SUB_1, DANK_MEME_URL)
-    assert slack.post_message.call_args == call(MOCK_CHANNEL, message, as_user=True)
+    message = "from {0}: {1}".format(tv['TEST_SUBREDDIT'], tv['TEST_LINK'])
+    assert slack.post_message.call_args[0][0] == MOCK_CHANNEL
+    assert slack.post_message.call_args[0][1] == message
 
 
-@patch.object(DankBot, 'in_collection')
-def test_find_and_post_in_collection(ic, praw, config, logger):
-    ic.return_value = True
-
-    dankbot = DankBot(config, logger)
+def test_find_and_post_in_collection(dankbot, dank_meme, slack):
     dankbot.subreddits = dankbot.subreddits[:1]
+    dankbot.db.add_to_collection(dank_meme)
 
     resp = dankbot.find_and_post_memes()
 
     assert resp is False
+    assert not slack.post_message.called
 
 
-@patch.object(DankBot, 'in_collection')
-def test_no_nsfw_and_18plus(ic, praw, config, logger):
-    ic.return_value = False
-    praw.get_hot.return_value[0].over_18 = True
+def test_no_nsfw_and_18plus(dankbot_nsfw, slack):
+    dankbot_nsfw.subreddits = dankbot_nsfw.subreddits[:1]
 
-    dankbot = DankBot(config, logger)
-    dankbot.subreddits = dankbot.subreddits[:1]
-
-    resp = dankbot.find_and_post_memes()
+    resp = dankbot_nsfw.find_and_post_memes()
 
     assert resp is False
+    assert not slack.post_message.called
 
 
-@patch.object(DankBot, 'add_to_collection')
-@patch.object(DankBot, 'in_collection')
-def test_yes_nsfw_and_18plus(ic, atc, slack, praw, config, logger):
-    ic.return_value = False
-    praw.get_hot.return_value[0].over_18 = True
+def test_yes_nsfw_and_18plus(dankbot_nsfw, slack):
+    dankbot_nsfw.include_nsfw = True
+    dankbot_nsfw.subreddits = dankbot_nsfw.subreddits[:1]
 
-    dankbot = DankBot(config, logger)
-    dankbot.include_nsfw = True
-    dankbot.subreddits = dankbot.subreddits[:1]
-
-    resp = dankbot.find_and_post_memes()
+    resp = dankbot_nsfw.find_and_post_memes()
 
     assert slack.post_message.called
     assert resp is True
-    assert atc.called
 
-    message = "from {0}: {1}".format(SUB_1, DANK_MEME_URL)
-    assert slack.post_message.call_args == call(MOCK_CHANNEL, message, as_user=True)
+    message = "from {0}: {1}".format(tv['TEST_SUBREDDIT'], tv['TEST_LINK'])
+    assert slack.post_message.call_args[0][0] == MOCK_CHANNEL
+    assert slack.post_message.call_args[0][1] == message
 
 
-@patch('dankbot.dankbot.praw')
 @patch('dankbot.memes.ImgurClient')
-@patch.object(DankBot, 'add_to_collection')
-@patch.object(DankBot, 'in_collection')
-def test_post_imgur_meme(ic, atc, imgur, praw, slack, config, logger, imgur_meme):
-    ic.return_value = False
-    imgur.return_value = Exception("Preventing connection")
-    praw.Reddit.return_value = praw
-    praw.get_subreddit.return_value = praw
-    praw.get_hot.return_value = [imgur_meme, ]
+def test_post_imgur_meme(client, dankbot_imgur, slack):
+    client.return_value = Exception("Preventing connection")
 
-    dankbot = DankBot(config, logger)
-    dankbot.subreddits = dankbot.subreddits[:1]
+    dankbot_imgur.subreddits = dankbot_imgur.subreddits[:1]
 
-    resp = dankbot.find_and_post_memes()
+    resp = dankbot_imgur.find_and_post_memes()
 
     assert slack.post_message.called
     assert resp is True
-    assert atc.called
 
-    message = "from {0}: {1}".format(SUB_1, IMGUR_MEME_URL)
-    assert slack.post_message.call_args == call(MOCK_CHANNEL, message, as_user=True)
+    message = "from {0}: {1}".format(tv['TEST_SUBREDDIT'], tv['TEST_IMAGE_LINK_1'])
+    assert slack.post_message.call_args[0][0] == MOCK_CHANNEL
+    assert slack.post_message.call_args[0][1] == message
+
+
+def test_last_seen_update(dankbot, slack, dank_meme):
+    dankbot.db.add_to_collection(dank_meme)
+    query = "SELECT last_seen from memes where reddit_id=:reddit_id"
+    first_meme_time = dankbot.db._query(query, {'reddit_id': dank_meme.reddit_id})
+    time.sleep(2)
+    dankbot.subreddits = dankbot.subreddits[:1]
+
+    resp = dankbot.find_and_post_memes()
+    second_meme_time = dankbot.db._query(query, {'reddit_id': dank_meme.reddit_id})
+
+    assert resp is False
+    assert not slack.post_message.called
+
+    assert first_meme_time != second_meme_time

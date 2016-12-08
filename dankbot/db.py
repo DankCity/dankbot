@@ -15,8 +15,9 @@ DB_NAME = 'dankbot.db'
 class DB(object):
     db_dir = None
     db_path = None
+    db_con = None
 
-    def __init__(self, db_dir=None, create_db=False):
+    def __init__(self, db_dir=None, db_name=None, create_db=False):
         self.db_dir = db_dir or user_data_dir(APPNAME, APPAUTHOR)
         self.db_path = join(self.db_dir, DB_NAME)
 
@@ -27,20 +28,23 @@ class DB(object):
         if not args:
             args = dict()
 
-        with lite.connect(self.db_path) as con, closing(con.cursor()) as cur:
+        if self.db_con is None:
+            self.db_con = lite.connect(self.db_path)
+
+        with self.db_con, closing(self.db_con.cursor()) as cur:
             cur.execute(query, args)
             return cur.fetchall()
 
     def _create_db_and_table(self):
         """ Create the database and table if it doesn't exist
         """
-        if os.path.exists(self.db_path):
+        if os.path.exists(self.db_path):  # pragma: no cover
             logger.info("Will not create database: already exists at:"
                         " {0}".format(self.db_path))
             return
 
         # Create the data directory if it doesn't exist
-        if not os.path.exists(self.db_dir):
+        if not os.path.exists(self.db_dir):  # pragma: no cover
             os.makedirs(self.db_dir)
 
         logger.info("Creating database at: {0}".format(self.db_path))
@@ -69,7 +73,7 @@ class DB(object):
 
         try:
             resp = self._query(query, {'reddit_id': meme.reddit_id})
-        except UnicodeEncodeError:
+        except UnicodeEncodeError:  # pragma: no cover
             # Indicates a link with oddball characters, just ignore it
             resp = True
 

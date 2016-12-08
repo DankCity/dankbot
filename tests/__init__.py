@@ -32,7 +32,8 @@ TRD = test_vars['TEST_REDDIT_ID']
 
 
 class RedditMeme(object):
-    def __init__(self, sub=TS, url=TL, id_=TRD):
+    def __init__(self, sub=TS, url=TL, id_=TRD, over_18=False):
             self.subreddit = sub
             self.url = url
             self.id = id_
+            self.over_18 = over_18

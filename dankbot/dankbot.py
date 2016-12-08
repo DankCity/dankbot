@@ -23,10 +23,6 @@ class DankBot(object):  # pylint: disable=R0902, R0903
         self.slack_token = config['slack']['token']
         self.slack_channel = config['slack']['channel']
 
-        self.database = config['mysql']['database']
-        self.username = config['mysql']['username']
-        self.password = config['mysql']['password']
-
         self.include_nsfw = config.getboolean('misc', 'include_nsfw')
         self.max_memes = config.getint('misc', 'max_memes')
 
