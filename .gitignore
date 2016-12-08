@@ -64,3 +64,6 @@ target/
 # Virtual envs
 venv
 .venv*
+
+# Dankbot ignore
+dankbot.ini*
